@@ -72,7 +72,7 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
     json_fields["fields"].push({"assignee" => @assignee}) if @assignee
     json_fields["fields"].push({"priority" => @priority}) if @priority
 
-    request.body = JSON.generate()
+    request.body = JSON.generate(json_fields)
     response = http.request(request)
   end # def receive
 end # class LogStash::Outputs::Jira_Http
