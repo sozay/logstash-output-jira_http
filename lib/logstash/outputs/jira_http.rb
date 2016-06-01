@@ -24,6 +24,9 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
   # Truncated and appended with '...' if longer than 255 characters.
   config :summary, :validate => :string, :required => true
 
+  #Jira description 
+  config :description, :validate => :string
+
   # JIRA Priority
   config :priority, :validate => :string
 
@@ -57,13 +60,14 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
     request = Net::HTTP::Post.new(uri.request_uri)
     request.basic_auth @username, @password
     request.add_field('Content-Type', 'application/json')
+    desc = @description ? event.sprintf(@description) : event.sprintf(event.to_hash.to_yaml)
     json_fields = {"fields"=> {
        "project"=> 
        {
           "id"=>  @projectid
        },
        "summary"=>  summary,
-       "description"=>  event.sprintf(event.to_hash.to_yaml),
+       "description"=>  desc,
        "issuetype"=>  {
           "id"=>  @issuetypeid
        }
