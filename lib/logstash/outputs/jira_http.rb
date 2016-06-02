@@ -28,7 +28,7 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
   config :description, :validate => :string
 
   #is description content html?
-  config :htmlContent, :validate => :bool, :default => false
+  config :htmlContent, :validate => :boolean, :default => false
 
   # JIRA Priority
   config :priority, :validate => :string
