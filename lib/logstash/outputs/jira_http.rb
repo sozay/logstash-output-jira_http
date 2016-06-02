@@ -27,6 +27,9 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
   #Jira description 
   config :description, :validate => :string
 
+  #is description content html?
+  config :htmlContent, :validate => :bool, :default => false
+
   # JIRA Priority
   config :priority, :validate => :string
 
@@ -42,6 +45,13 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
     require "net/http"
     require "uri"
     require 'json'
+    require "nokogiri" if @htmlContent
+  end
+
+  def convertToText(content)    
+    doc = Nokogiri::HTML(a)
+    doc.css('script, link').each { |node| node.remove }
+    doc.css('body').text.squeeze(" \n")
   end
 
   public
@@ -67,7 +77,7 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
           "id"=>  @projectid
        },
        "summary"=>  summary,
-       "description"=>  desc,
+       "description"=>  @htmlContent ? convertToText(desc) : desc,
        "issuetype"=>  {
           "id"=>  @issuetypeid
        }
