@@ -27,7 +27,7 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
   #Jira description 
   config :description, :validate => :string
 
-  #converts description field's content to text from html
+  #adds html jira macro prefix to description content so jira can show html content in issue
   config :htmlContent, :validate => :boolean, :default => false
 
   # JIRA Priority
@@ -44,14 +44,11 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
   def register    
     require "net/http"
     require "uri"
-    require 'json'
-    require "nokogiri" if @htmlContent
+    require 'json'    
   end
 
-  def convertToText(content)    
-    doc = Nokogiri::HTML(content)
-    doc.css('script, link').each { |node| node.remove }
-    doc.css('body').text.squeeze(" \n")
+  def addHtmlTags(content)    
+    "{html}"+content+"{html}"
   end
 
   public
@@ -71,7 +68,7 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
     request.basic_auth @username, @password
     request.add_field('Content-Type', 'application/json')
     desc = @description ? event.sprintf(@description) : event.sprintf(event.to_hash.to_yaml)
-    desc = convertToText(desc) if @htmlContent
+    desc = addHtmlTags(desc) if @htmlContent
     json_fields = {"fields"=> {
        "project"=> 
        {
