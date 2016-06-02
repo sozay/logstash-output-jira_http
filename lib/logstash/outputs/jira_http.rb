@@ -49,7 +49,7 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
   end
 
   def convertToText(content)    
-    doc = Nokogiri::HTML(a)
+    doc = Nokogiri::HTML(content)
     doc.css('script, link').each { |node| node.remove }
     doc.css('body').text.squeeze(" \n")
   end
