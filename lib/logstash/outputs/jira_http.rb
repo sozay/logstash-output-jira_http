@@ -71,20 +71,21 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
     request.basic_auth @username, @password
     request.add_field('Content-Type', 'application/json')
     desc = @description ? event.sprintf(@description) : event.sprintf(event.to_hash.to_yaml)
+    desc = convertToText(desc) if @htmlContent
     json_fields = {"fields"=> {
        "project"=> 
        {
           "id"=>  @projectid
        },
        "summary"=>  summary,
-       "description"=>  @htmlContent ? convertToText(desc) : desc,
+       "description"=>  desc,
        "issuetype"=>  {
           "id"=>  @issuetypeid
        }
     }}
     json_fields["fields"]["reporter"] = @reporter if @reporter
     json_fields["fields"]["assignee"] = @assignee if @assignee
-    json_fields["fields"]["priority"] = @priority if @priority
+    json_fields["fields"]["priority"] = @priority if @priority    
 
     request.body = JSON.generate(json_fields)
     response = http.request(request)
