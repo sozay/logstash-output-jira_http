@@ -27,7 +27,7 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
   #Jira description 
   config :description, :validate => :string
 
-  #is description content html?
+  #converts description field's content to text from html
   config :htmlContent, :validate => :boolean, :default => false
 
   # JIRA Priority
@@ -82,9 +82,9 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
           "id"=>  @issuetypeid
        }
     }}
-    json_fields["fields"].push({"reporter" => @reporter}) if @reporter
-    json_fields["fields"].push({"assignee" => @assignee}) if @assignee
-    json_fields["fields"].push({"priority" => @priority}) if @priority
+    json_fields["fields"]["reporter"] = @reporter if @reporter
+    json_fields["fields"]["assignee"] = @assignee if @assignee
+    json_fields["fields"]["priority"] = @priority if @priority
 
     request.body = JSON.generate(json_fields)
     response = http.request(request)
