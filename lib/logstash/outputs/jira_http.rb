@@ -48,6 +48,8 @@ class LogStash::Outputs::Jira_Http < LogStash::Outputs::Base
   end
 
   def addHtmlTags(content)    
+    content.slice! "<html>"
+    content.slice! "</html>"
     "{html}"+content+"{html}"
   end
 
